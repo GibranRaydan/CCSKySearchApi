@@ -1,18 +1,24 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using CCSWebKySearch.Models;
 using CCSWebKySearch.Services;
 using AutoMapper;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddDbContext<MyDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-                     new MySqlServerVersion(new Version(8, 0, 21))));
+builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
 builder.Services.AddScoped<INotebookService, NotebookService>();
 builder.Services.AddAutoMapper(typeof(Program));
+
+// CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", b => b.AllowAnyHeader()
+                                        .AllowAnyOrigin()
+                                        .AllowAnyMethod());
+
+});
 
 builder.Services.AddScoped<ICheckLiveService, CheckLiveService>();
 
@@ -32,9 +38,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1"));
 }
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-
 
 // CheckLive endpoint
 app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
@@ -45,11 +50,19 @@ app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 .WithOpenApi();
 
 // Notebooks endpoint
-app.MapGet("/notebooks", async (INotebookService notebookService, IMapper mapper) =>
+app.MapGet("/notebooks", async (INotebookService notebookService, IMapper mapper, int? count) =>
 {
-    var notebooks = await notebookService.GetAllNotebooksAsync();
-    var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
-    return Results.Ok(notebooksDto);
+    try
+    {
+        var notebooks = await notebookService.GetAllNotebooksAsync(count ?? 500);
+        var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+        return Results.Ok(notebooksDto);
+    }
+    catch(Exception)
+    {
+        return Results.BadRequest("invalid input, count should be > 0, <= 1000");
+    }
+
 })
 .WithName("GetAllNotebooks")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));

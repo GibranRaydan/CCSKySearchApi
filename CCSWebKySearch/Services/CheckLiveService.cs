@@ -9,7 +9,6 @@
     {
         public bool IsLive()
         {
-            // You can add more complex logic here if needed.
             return true;
         }
     }
