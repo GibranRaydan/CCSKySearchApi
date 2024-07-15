@@ -8,4 +8,14 @@ namespace CCSWebKySearch.Services
     {
         Task<IEnumerable<NotebookModel>> GetAllNotebooksAsync(int count);
     }
+
+    public interface ILandSearchPageBookService
+    {
+        Task<IEnumerable<NotebookModel>> SearchPageBookService(int book, int page);
+    }
+
+    public interface IKindSearchService
+    {
+        Task<IEnumerable<NotebookModel>> SearchByKindsAsync(List<string> kinds);
+    }
 }
