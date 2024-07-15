@@ -41,6 +41,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
+// Use the global exception handling middleware
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 // CheckLive endpoint
 app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 {
@@ -52,17 +55,9 @@ app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 // Notebooks endpoint
 app.MapGet("/notebooks", async (INotebookService notebookService, IMapper mapper, int? count) =>
 {
-    try
-    {
-        var notebooks = await notebookService.GetAllNotebooksAsync(count ?? 500);
-        var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
-        return Results.Ok(notebooksDto);
-    }
-    catch(Exception)
-    {
-        return Results.BadRequest("invalid input, count should be > 0, <= 1000");
-    }
-
+    var notebooks = await notebookService.GetAllNotebooksAsync(count ?? 500);
+    var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+    return Results.Ok(notebooksDto);
 })
 .WithName("GetAllNotebooks")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
