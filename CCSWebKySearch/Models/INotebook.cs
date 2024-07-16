@@ -6,7 +6,7 @@ namespace CCSWebKySearch.Services
 {
     public interface INotebookService
     {
-        Task<NotebookResponse> GetAllNotebooksAsync(int count);
+        Task<IEnumerable<NotebookModel>> GetAllNotebooksAsync(int count);
     }
 
     public interface ILandSearchPageBookService
@@ -17,5 +17,10 @@ namespace CCSWebKySearch.Services
     public interface IKindSearchService
     {
         Task<IEnumerable<NotebookModel>> SearchByKindsAsync(List<string> kinds);
+    }
+
+    public interface IDocumentFileService
+    {
+        Task<byte[]> GetDocumentFileAsync(string book, string page, string fileType);
     }
 }

@@ -15,7 +15,7 @@ namespace CCSWebKySearch.Services
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<NotebookResponse> GetAllNotebooksAsync(int count = 500)
+        public async Task<IEnumerable<NotebookModel>> GetAllNotebooksAsync(int count = 500)
         {
 
             if (count < 0 || count > 10000) {
@@ -27,34 +27,10 @@ namespace CCSWebKySearch.Services
                 var parameters = new DynamicParameters();
                 parameters.Add("inputCount", count, DbType.Int32, ParameterDirection.Input);
                 
-                var notebooks = await dbConnection.QueryAsync<NotebookModel>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
-
-
-                string fileUrl = "C:\\Users\\USER\\Desktop\\BOOK2170\\0000000011";
-
-                CCSImageHelper.MakePDFFile(fileUrl);
-                string filePath = @"C:\Users\USER\Desktop\BOOK2170\0000000011\working\merged.pdf";
-
-                 var pdfFileBytes = await File.ReadAllBytesAsync(filePath);
-
-
-                // return await dbConnection.QueryAsync<NotebookModel>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
-
-                return new NotebookResponse
-                {
-                    Notebooks = notebooks,
-                    PdfFileContent = pdfFileBytes
-                };
+                return await dbConnection.QueryAsync<NotebookModel>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
 
             } 
         }
     }
-
-    public class NotebookResponse
-    {
-        public IEnumerable<NotebookModel> Notebooks { get; set; }
-        public byte[] PdfFileContent { get; set; }
-    }
-
 
 }
