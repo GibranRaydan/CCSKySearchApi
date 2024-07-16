@@ -59,8 +59,8 @@ app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 app.MapGet("/notebooks", async ([FromServices] INotebookService notebookService, [FromServices] IMapper mapper, [FromQuery] int? count) =>
 {
     var notebooks = await notebookService.GetAllNotebooksAsync(count ?? 500);
-    var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
-    return Results.Ok(notebooksDto);
+    // var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+    return Results.Ok(notebooks);
 })
 .WithName("GetAllNotebooks")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
