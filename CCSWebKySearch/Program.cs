@@ -4,6 +4,7 @@ using CCSWebKySearch.Services;
 using AutoMapper;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
+using CCSWebKySearch.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,10 @@ builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration
 
 builder.Services.AddScoped<INotebookService, NotebookService>();
 builder.Services.AddScoped<ILandSearchPageBookService, BookPageSearchService>();
-builder.Services.AddScoped<IKindSearchService, KindSearchService>(); // Register the new service
+builder.Services.AddScoped<IKindSearchService, KindSearchService>();
+builder.Services.AddScoped<INameSearchService, NameSearchService>();
+builder.Services.AddScoped<IDocumentFileService, DocumentFileService>();
+
 builder.Services.AddAutoMapper(typeof(Program));
 
 // CORS configuration
@@ -56,19 +60,26 @@ app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 .WithOpenApi();
 
 // Notebooks endpoint
-app.MapGet("/notebooks", async ([FromServices] INotebookService notebookService, [FromServices] IMapper mapper, [FromQuery] int? count) =>
+app.MapGet("/notebooks", async (
+    [FromServices] INotebookService notebookService,
+    [FromServices] IMapper mapper,
+    [FromQuery] int? count) =>
 {
     var notebooks = await notebookService.GetAllNotebooksAsync(count ?? 500);
-    var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
-    return Results.Ok(notebooksDto);
+    // var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+    return Results.Ok(notebooks);
 })
 .WithName("GetAllNotebooks")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
 
 // LandSearch endpoint
-app.MapGet("/search/documents/book-page", async ([FromServices] ILandSearchPageBookService searchService, [FromServices] IMapper mapper, [FromQuery] int book, [FromQuery] int page) =>
+app.MapGet("/search/documents/book-page", async (
+    [FromServices] ILandSearchPageBookService searchService,
+    [FromServices] IMapper mapper,
+    [FromQuery] int book,
+    [FromQuery] int page) =>
 {
-    var notebooks = await searchService.SearchPageBookService(book, page);
+    var notebooks = await searchService.SearchByPageBookService(book, page);
     var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
     return Results.Ok(notebooksDto);
 })
@@ -76,7 +87,10 @@ app.MapGet("/search/documents/book-page", async ([FromServices] ILandSearchPageB
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
 
 // KindSearch endpoint
-app.MapGet("/search/documents/kind", async (HttpContext context, [FromServices] IKindSearchService searchService, [FromServices] IMapper mapper) =>
+app.MapGet("/search/documents/kind", async (
+    HttpContext context,
+    [FromServices] IKindSearchService searchService,
+    [FromServices] IMapper mapper) =>
 {
     var kindsQuery = context.Request.Query["kinds"].ToString();
     var kinds = kindsQuery.Split(',').Select(k => k.Trim()).ToList();
@@ -86,6 +100,45 @@ app.MapGet("/search/documents/kind", async (HttpContext context, [FromServices] 
     return Results.Ok(notebooksDto);
 })
 .WithName("GetDocumentsByKind")
+.WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
+
+//NameSearch endpoint
+app.MapGet("/search/documents/name", async (
+    HttpContext context,
+    [FromServices] INameSearchService searchService,
+    [FromServices] IMapper mapper,
+    [FromQuery] string surname,
+    [FromQuery] string nameType,
+    [FromQuery] string? given) =>
+{
+    var notebooks = await searchService.SearchByNameServiceAsync(surname, nameType ?? "BOTH", given);
+    var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+    return Results.Ok(notebooksDto);
+})
+.WithName("GetDocumentsByName")
+.WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
+
+// Endpoints for PDF and TIFF documents
+app.MapGet("/search/documents/pdf", async (
+    [FromServices] IDocumentFileService documentService,
+    [FromQuery] string book,
+    [FromQuery] string page) =>
+{
+   var fileContent = await documentService.GetDocumentFileAsync(book, page, "pdf");
+   return Results.File(fileContent, "application/pdf", $"Book{book}_Page{page}.pdf"); 
+})
+.WithName("GetPdfDocument")
+.WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
+
+app.MapGet("/search/documents/tif", async (
+    [FromServices] IDocumentFileService documentService,
+    [FromQuery] string book,
+    [FromQuery] string page) =>
+{
+    var fileContent = await documentService.GetDocumentFileAsync(book, page, "tif");
+    return Results.File(fileContent, "image/tiff", $"Book{book}_Page{page}.tif");   
+})
+.WithName("GetTifDocument")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
 
 app.Run();
