@@ -19,7 +19,7 @@ namespace CCSWebKySearch.Services
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<IEnumerable<NotebookModel>> SearchPageBookService(int book = 0, int page = 0)
+        public async Task<IEnumerable<NotebookModel>> SearchByPageBookService(int book = 0, int page = 0)
         {
             if (book < 0 || page < 0)
             {
