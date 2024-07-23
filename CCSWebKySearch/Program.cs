@@ -5,8 +5,28 @@ using AutoMapper;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
 using CCSWebKySearch.Exceptions;
+using DotNetEnv;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Load the .env file
+Env.Load();
+
+// Retrieve values from .env
+var connectionString = Env.GetString("CONNECTION_STRING");
+var documentsPath = Env.GetString("DOCUMENTS_PATH");
+var seqServerUrl = Env.GetString("SEQ_SERVER_URL");
+
+// Set up configuration to override values with those from .env
+builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
+{
+    { "ConnectionStrings:DefaultConnection", connectionString },
+    { "DocumentsPath", documentsPath },
+    { "Serilog:WriteTo:2:Args:serverUrl", seqServerUrl }
+});
+
 
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
