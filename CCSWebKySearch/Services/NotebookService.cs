@@ -18,7 +18,7 @@ namespace CCSWebKySearch.Services
         public async Task<IEnumerable<NotebookModel>> GetAllNotebooksAsync(int count = 500)
         {
 
-            if (count < 0 || count > 10000) {
+            if (count <= 0 || count > 10000) {
                 throw new InvalidInputException("Count must be between 0 and 10000.");
             }
             using (IDbConnection dbConnection = new MySqlConnection(_connectionString))

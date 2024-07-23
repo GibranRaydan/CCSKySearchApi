@@ -96,8 +96,8 @@ app.MapGet("/notebooks", async (
 app.MapGet("/search/documents/book-page", async (
     [FromServices] ILandSearchPageBookService searchService,
     [FromServices] IMapper mapper,
-    [FromQuery] int book,
-    [FromQuery] int page) =>
+    [FromQuery] long book,
+    [FromQuery] long page) =>
 {
     var notebooks = await searchService.SearchByPageBookService(book, page);
     var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
