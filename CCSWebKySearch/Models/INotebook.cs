@@ -15,7 +15,7 @@ namespace CCSWebKySearch.Services
     }
     public interface ILandSearchPageBookService
     {
-        Task<IEnumerable<NotebookModel>> SearchByPageBookService(int book, int page);
+        Task<IEnumerable<NotebookModel>> SearchByPageBookService(long book, long page);
     }
 
     public interface IKindSearchService

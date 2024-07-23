@@ -19,11 +19,16 @@ namespace CCSWebKySearch.Services
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<IEnumerable<NotebookModel>> SearchByPageBookService(int book = 0, int page = 0)
+        public async Task<IEnumerable<NotebookModel>> SearchByPageBookService(long book = 0, long page = 0)
         {
             if (book < 0 || page < 0)
             {
                 throw new InvalidInputException("invalid input, just positive numbers");
+            }
+
+            if (book.ToString().Length > 10 || page.ToString().Length > 10)
+            {
+                throw new InvalidInputException("invalid input, the inputs are to big");
             }
             using (IDbConnection dbConnection = new MySqlConnection(_connectionString))
             {
