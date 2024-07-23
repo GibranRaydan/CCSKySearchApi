@@ -66,8 +66,8 @@ app.MapGet("/notebooks", async (
     [FromQuery] int? count) =>
 {
     var notebooks = await notebookService.GetAllNotebooksAsync(count ?? 500);
-    // var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
-    return Results.Ok(notebooks);
+    var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
+    return Results.Ok(notebooksDto);
 })
 .WithName("GetAllNotebooks")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));

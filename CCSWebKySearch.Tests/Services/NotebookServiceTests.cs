@@ -1,53 +1,66 @@
-﻿using CCSWebKySearch.Models;
+﻿using CCSWebKySearch.Exceptions;
+using CCSWebKySearch.Models;
 using CCSWebKySearch.Services;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using MySqlConnector;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Microsoft.Extensions.Configuration;
 
-namespace CCSWebKySearch.Tests.Services
+public class NotebookServiceTests
 {
-    public class NotebookServiceTests
+    private readonly NotebookService _notebookService;
+    private readonly Mock<IDbConnectionFactory> _mockConnectionFactory;
+    private readonly string _mockConnectionString = "Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;";
+
+    public NotebookServiceTests()
     {
-        private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<IDbConnection> _mockDbConnection;
+        _mockConnectionFactory = new Mock<IDbConnectionFactory>();
+        _notebookService = new NotebookService(_mockConnectionString, _mockConnectionFactory.Object);
+    }
 
-        public NotebookServiceTests()
+    [Fact]
+    public async Task GetAllNotebooksAsync_ShouldReturnNotebooks_WhenCountIsValid()
+    {
+        // Arrange
+        var expectedCount = 10;
+        var notebooks = new List<NotebookModel>
         {
-            _mockConfiguration = new Mock<IConfiguration>();
-            _mockDbConnection = new Mock<IDbConnection>();
+            new NotebookModel { /* Initialize properties */ },
+            new NotebookModel { /* Initialize properties */ }
+        };
 
-            _mockConfiguration.Setup(c => c.GetConnectionString("DefaultConnection"))
-                .Returns("test");
-        }
+        var mockDbConnection = new Mock<IDbConnection>();
+        mockDbConnection.Setup(db => db.QueryAsync<NotebookModel>(
+            "CCSGetDailyNotebook",
+            It.IsAny<DynamicParameters>(),
+            null,
+            null,
+            CommandType.StoredProcedure))
+            .ReturnsAsync(notebooks);
 
-        [Fact]
-        public async Task GetAllNotebooksAsync_ReturnsNotebooks()
-        {
-            // Arrange
-            var mockDbConnection = new Mock<IDbConnection>();
-            var notebooks = new List<NotebookModel>
-            {
-                new NotebookModel { Book = "1", Page = "Notebook 1" },
-                new NotebookModel { Book = "2", Page = "Notebook 2" }
-            };
+        _mockConnectionFactory.Setup(factory => factory.CreateConnection(It.IsAny<string>()))
+                             .Returns(mockDbConnection.Object);
 
-            mockDbConnection
-                .Setup(db => db.QueryAsync<NotebookModel>("CCSGetDailyNotebook", null, null, null, CommandType.StoredProcedure))
-                .ReturnsAsync(notebooks);
+        // Act
+        var result = await _notebookService.GetAllNotebooksAsync(expectedCount);
 
-            var service = new NotebookService(_mockConfiguration.Object);
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(notebooks.Count, result.Count());
+        Assert.Equal(notebooks, result);
+    }
 
-            // Act
-            var result = await service.GetAllNotebooksAsync();
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count());
-        }
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(10001)]
+    public async Task GetAllNotebooksAsync_ShouldThrowInvalidInputException_WhenCountIsInvalid(int invalidCount)
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidInputException>(() => _notebookService.GetAllNotebooksAsync(invalidCount));
     }
 }
