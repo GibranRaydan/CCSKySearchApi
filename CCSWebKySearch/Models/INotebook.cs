@@ -23,6 +23,11 @@ namespace CCSWebKySearch.Services
         Task<IEnumerable<NotebookModel>> SearchByKindsAsync(List<string> kinds);
     }
 
+    public interface IMarriageLicenseService
+    {
+        Task<IEnumerable<MarriageLicenseModel>> SearchMarriageLicense(string surname, string searchType, int order = 0);
+    }
+
     public interface IDocumentFileService
     {
         Task<byte[]> GetDocumentFileAsync(string book, string page, string fileType);
