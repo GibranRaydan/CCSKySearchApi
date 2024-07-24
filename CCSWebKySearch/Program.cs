@@ -34,6 +34,7 @@ builder.Services.AddScoped<INotebookService, NotebookService>();
 builder.Services.AddScoped<ILandSearchPageBookService, BookPageSearchService>();
 builder.Services.AddScoped<IKindSearchService, KindSearchService>();
 builder.Services.AddScoped<INameSearchService, NameSearchService>();
+builder.Services.AddScoped<IMarriageLicenseService, MarriageLicenseSearchService>();
 builder.Services.AddScoped<IDocumentFileService, DocumentFileService>();
 
 builder.Services.AddAutoMapper(typeof(Program));
@@ -137,6 +138,25 @@ app.MapGet("/search/documents/name", async (
 })
 .WithName("GetDocumentsByName")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
+
+
+
+//MarriageLicenseSearch endpoint
+app.MapGet("/search/documents/marriage-license", async (
+    HttpContext context,
+    [FromServices] IMarriageLicenseService searchService,
+    [FromServices] IMapper mapper,
+    [FromQuery] string surname,
+    [FromQuery] string? searchType,
+    [FromQuery] int? order) =>
+{
+    var licenses = await searchService.SearchMarriageLicense(surname, searchType ?? "GROOM", order ?? 0);
+    var licensesDto = mapper.Map<IEnumerable<MarriageLicenseDto>>(licenses);
+    return Results.Ok(licensesDto);
+})
+.WithName("GetMarriageLicenses")
+.WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
+
 
 // Endpoints for PDF and TIFF documents
 app.MapGet("/search/documents/pdf", async (

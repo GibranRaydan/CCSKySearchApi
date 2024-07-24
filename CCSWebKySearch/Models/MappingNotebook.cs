@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CCSWebKySearch.Models
 {
@@ -8,6 +7,15 @@ namespace CCSWebKySearch.Models
         public MappingNotebook()
         {
             CreateMap<NotebookModel, NotebookDto>();
+        }
+
+    }
+
+    public class MappingMarriageLicense : Profile
+    {
+        public MappingMarriageLicense() 
+        {
+            CreateMap<MarriageLicenseModel, MarriageLicenseDto>();
         }
     }
 }
