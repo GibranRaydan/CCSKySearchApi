@@ -3,6 +3,7 @@ using CCSWebKySearch.Models;
 using System.Data;
 using MySqlConnector;
 using CCSWebKySearch.Exceptions;
+using CCSWebKySearch.Contracts;
 
 namespace CCSWebKySearch.Services
 {

@@ -12,7 +12,7 @@ using PdfSharp.Pdf;
 using PdfSharp;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace CCSWebKySearch.Models
+namespace CCSWebKySearch.Utils
 {
     /// <summary>
     /// CCS PDF Utility class to image manipulation between formats
@@ -201,12 +201,12 @@ namespace CCSWebKySearch.Models
 
 
         // Retrive PageCount of a multi-page tiff image
-        int getPageCount(String fileName)
+        int getPageCount(string fileName)
         {
             int pageCount = -1;
             try
             {
-                System.Drawing.Image img = Bitmap.FromFile(fileName);
+                System.Drawing.Image img = System.Drawing.Image.FromFile(fileName);
                 pageCount = img.GetFrameCount(FrameDimension.Page);
                 img.Dispose();
 
@@ -219,13 +219,13 @@ namespace CCSWebKySearch.Models
         }
 
 
-        System.Drawing.Image getTiffImage(String sourceFile, int pageNumber)
+        System.Drawing.Image getTiffImage(string sourceFile, int pageNumber)
         {
             System.Drawing.Image returnImage = null;
 
             try
             {
-                System.Drawing.Image sourceIamge = Bitmap.FromFile(sourceFile);
+                System.Drawing.Image sourceIamge = System.Drawing.Image.FromFile(sourceFile);
                 returnImage = getTiffImage(sourceIamge, pageNumber);
                 sourceIamge.Dispose();
             }

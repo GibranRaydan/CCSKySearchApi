@@ -1,4 +1,5 @@
-﻿using CCSWebKySearch.Exceptions;
+﻿using CCSWebKySearch.Contracts;
+using CCSWebKySearch.Exceptions;
 using CCSWebKySearch.Models;
 using Dapper;
 using MySqlConnector;

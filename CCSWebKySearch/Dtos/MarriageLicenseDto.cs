@@ -1,4 +1,4 @@
-﻿namespace CCSWebKySearch.Models
+﻿namespace CCSWebKySearch.Dtos
 {
     public class MarriageLicenseDto
     {

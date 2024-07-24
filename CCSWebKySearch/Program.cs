@@ -4,8 +4,9 @@ using CCSWebKySearch.Services;
 using AutoMapper;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
-using CCSWebKySearch.Exceptions;
 using DotNetEnv;
+using CCSWebKySearch.Dtos;
+using CCSWebKySearch.Contracts;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -139,8 +140,6 @@ app.MapGet("/search/documents/name", async (
 .WithName("GetDocumentsByName")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
 
-
-
 //MarriageLicenseSearch endpoint
 app.MapGet("/search/documents/marriage-license", async (
     HttpContext context,
@@ -156,7 +155,6 @@ app.MapGet("/search/documents/marriage-license", async (
 })
 .WithName("GetMarriageLicenses")
 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
-
 
 // Endpoints for PDF and TIFF documents
 app.MapGet("/search/documents/pdf", async (

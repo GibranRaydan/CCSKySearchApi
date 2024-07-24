@@ -3,6 +3,7 @@ using Dapper;
 using MySqlConnector;
 using System.Data;
 using CCSWebKySearch.Exceptions;
+using CCSWebKySearch.Contracts;
 
 namespace CCSWebKySearch.Services
 {
