@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace CCSWebKySearch.Models
+namespace CCSWebKySearch.Utils
 {
     public static class CCSImageHelper
     {
@@ -18,14 +18,14 @@ namespace CCSWebKySearch.Models
             try
             {
                 //Created the name of the merged TIFF file
-                string strMergedFile = String.Format("{0}\\working\\{1}.tiff", dirName, "merged");
+                string strMergedFile = string.Format("{0}\\working\\{1}.tiff", dirName, "merged");
                 string workingFolder = Path.Combine(dirName, "Working");
                 Directory.CreateDirectory(workingFolder);
                 //Merge the tif files together
                 MergeSingleTIFFPages(dirName, strMergedFile);
 
                 //Now convert the merged TIFF file into a PDF document
-                using (CCSWebKySearch.Models.PDFUtility pdfObject = new CCSWebKySearch.Models.PDFUtility())
+                using (PDFUtility pdfObject = new PDFUtility())
                 {
                     aRET = pdfObject.CCSTiff2PDF(strMergedFile);
                 }

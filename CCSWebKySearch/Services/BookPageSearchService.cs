@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using CCSWebKySearch.Exceptions;
 using System.Diagnostics.Metrics;
+using CCSWebKySearch.Contracts;
 
 namespace CCSWebKySearch.Services
 {

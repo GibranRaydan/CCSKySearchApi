@@ -1,5 +1,6 @@
-﻿using CCSWebKySearch.Exceptions;
-using CCSWebKySearch.Models;
+﻿using CCSWebKySearch.Contracts;
+using CCSWebKySearch.Exceptions;
+using CCSWebKySearch.Utils;
 using System.IO;
 using System.Threading.Tasks;
 

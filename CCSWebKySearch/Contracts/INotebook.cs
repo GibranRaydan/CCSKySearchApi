@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CCSWebKySearch.Models;
 
-namespace CCSWebKySearch.Services
+namespace CCSWebKySearch.Contracts
 {
     public interface INotebookService
     {

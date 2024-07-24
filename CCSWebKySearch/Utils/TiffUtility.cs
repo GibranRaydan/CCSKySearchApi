@@ -9,13 +9,13 @@ using System.Threading;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace CCSWebKySearch.Models
+namespace CCSWebKySearch.Utils
 {
     internal class TiffUtility
     {
         #region Variable & Class Definitions
 
-        private static System.Drawing.Imaging.ImageCodecInfo tifImageCodecInfo;
+        private static ImageCodecInfo tifImageCodecInfo;
 
         private static EncoderParameter tifEncoderParameterMultiFrame;
         private static EncoderParameter tifEncoderParameterFrameDimensionPage;
@@ -70,7 +70,7 @@ namespace CCSWebKySearch.Models
 
             try
             {
-                Image img = Bitmap.FromFile(fileName);
+                Image img = Image.FromFile(fileName);
                 pageCount = img.GetFrameCount(FrameDimension.Page);
                 img.Dispose();
             }
@@ -168,7 +168,7 @@ namespace CCSWebKySearch.Models
 
             try
             {
-                Image sourceImage = Bitmap.FromFile(sourceFile);
+                Image sourceImage = Image.FromFile(sourceFile);
                 returnImage = getTiffImages(sourceImage, pageNumbers);
                 sourceImage.Dispose();
             }
@@ -258,7 +258,7 @@ namespace CCSWebKySearch.Models
 
             try
             {
-                Image sourceImage = Bitmap.FromFile(sourceFile);
+                Image sourceImage = Image.FromFile(sourceFile);
                 Image[] sourceImages = splitTiffPages(sourceImage);
 
                 int pageCount = sourceImages.Length;
@@ -267,7 +267,7 @@ namespace CCSWebKySearch.Models
                 for (int i = 0; i < pageCount; i++)
                 {
                     FileInfo fi = new FileInfo(sourceFile);
-                    string babyImg = targetDirectory + "\\" + fi.Name.Substring(0, (fi.Name.Length - fi.Extension.Length)) + "_PAGE" + (i + 1).ToString().PadLeft(3, '0') + fi.Extension;
+                    string babyImg = targetDirectory + "\\" + fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length) + "_PAGE" + (i + 1).ToString().PadLeft(3, '0') + fi.Extension;
                     sourceImages[i].Save(babyImg);
                     returnImages[i] = babyImg;
                 }
@@ -363,7 +363,7 @@ namespace CCSWebKySearch.Models
                 assignEncoder();
 
                 // Get individual Images from the original image
-                Image sourceImage = Bitmap.FromFile(sourceFile);
+                Image sourceImage = Image.FromFile(sourceFile);
                 MemoryStream ms = new MemoryStream();
                 Image[] sourceImages = new Image[pageNumbers.Length];
                 Guid guid = sourceImage.FrameDimensionsList[0];
@@ -408,7 +408,7 @@ namespace CCSWebKySearch.Models
                 assignEncoder();
 
                 // Get individual Images from the original image
-                Image sourceImage = Bitmap.FromFile(sourceFile);
+                Image sourceImage = Image.FromFile(sourceFile);
                 MemoryStream[] msArray = new MemoryStream[pageNumbers.Length];
                 Guid guid = sourceImage.FrameDimensionsList[0];
                 FrameDimension objDimension = new FrameDimension(guid);
@@ -421,7 +421,7 @@ namespace CCSWebKySearch.Models
 
                 // Merge individual page streams into single stream
                 MemoryStream ms = mergeTiffStreams(msArray);
-                Image targetImage = Bitmap.FromStream(ms);
+                Image targetImage = Image.FromStream(ms);
                 targetImage.Save(targetFile);
 
                 response = true;
@@ -434,10 +434,10 @@ namespace CCSWebKySearch.Models
             return response;
         }
 
-        public System.IO.MemoryStream mergeTiffStreams(System.IO.MemoryStream[] tifsStream)
+        public MemoryStream mergeTiffStreams(MemoryStream[] tifsStream)
         {
             EncoderParameters ep = null;
-            System.IO.MemoryStream singleStream = new System.IO.MemoryStream();
+            MemoryStream singleStream = new MemoryStream();
 
             try
             {
