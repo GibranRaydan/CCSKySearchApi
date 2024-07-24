@@ -1,13 +1,8 @@
 ﻿using CCSWebKySearch.Models;
 using Dapper;
 using MySqlConnector;
-using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using CCSWebKySearch.Exceptions;
-using System.Diagnostics.Metrics;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CCSWebKySearch.Services
 {
@@ -33,7 +28,7 @@ namespace CCSWebKySearch.Services
                     storedProcedure = "VitalSearch_MarriageGroom";
                     parameters.Add("sqlWhere", $" WHERE Groomsurname like '{surname}%'", DbType.String, ParameterDirection.Input);
                 }
-                if (searchType == "BRIDGE")
+                if (searchType == "BRIDE")
                 {
                     storedProcedure = "VitalSearch_MarriageBride";
                     parameters.Add("sqlWhere", $" WHERE bridesurname like '{surname}%'", DbType.String, ParameterDirection.Input);
@@ -53,11 +48,11 @@ namespace CCSWebKySearch.Services
                 throw new InvalidInputException("invalid input, surname can not be empty");
             }
 
-            //if (searchType != "GROOM" || searchType != "BRIDE")
-            //{
-            //    throw new InvalidInputException("invalid input searchType should be GROOM or BRIDE");
+            if (searchType != "GROOM" && searchType != "BRIDE")
+            {
+                throw new InvalidInputException("invalid input searchType should be GROOM or BRIDE");
+            }
 
-            //}
             var sortDirection = "";
 
             switch (order)
@@ -70,21 +65,8 @@ namespace CCSWebKySearch.Services
                     sortDirection = "desc";
                     break;
                 default:
-                    throw new InvalidInputException("invalid input searchType should be GROOM or BRIDE"); ;
+                    throw new InvalidInputException("invalid input count should be 0 or 1"); ;
             }
-
-            //if (order == 0)
-            //{
-            //    sortDirection = "asc";
-            //}
-            //if (order == 1)
-            //{
-            //    sortDirection = "desc";
-            //}
-            //else
-            //{
-            //    throw new InvalidInputException("invalid input order");
-            //}
 
             return sortDirection;
         }
