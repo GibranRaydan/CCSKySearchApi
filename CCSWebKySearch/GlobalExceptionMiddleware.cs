@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 using CCSWebKySearch.Exceptions;
 using System.Text.Json;
-using Serilog;
 
 public class GlobalExceptionMiddleware
 {
@@ -45,6 +42,11 @@ public class GlobalExceptionMiddleware
                 status = HttpStatusCode.NotFound;
                 message = exception.Message;
                 _logger.Warning(exception, "Not found: {Message}", exception.Message);
+                break;
+            case BadHttpRequestException _:
+                status = HttpStatusCode.BadRequest;
+                message = "Invalid request data.";
+                _logger.Warning(exception, "Bad request: {Message}", exception.Message);
                 break;
             default:
                 status = HttpStatusCode.InternalServerError;

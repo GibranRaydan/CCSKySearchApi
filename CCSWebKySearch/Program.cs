@@ -8,9 +8,7 @@ using DotNetEnv;
 using CCSWebKySearch.Dtos;
 using CCSWebKySearch.Contracts;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Load the .env file
 Env.Load();
@@ -98,10 +96,12 @@ app.MapGet("/notebooks", async (
 app.MapGet("/search/documents/book-page", async (
     [FromServices] ILandSearchPageBookService searchService,
     [FromServices] IMapper mapper,
-    [FromQuery] long book,
-    [FromQuery] long page) =>
+    [FromQuery] long? book,
+    [FromQuery] long? page) =>
 {
-    var notebooks = await searchService.SearchByPageBookService(book, page);
+    // Check if page is null and return 400 Bad Request if it is
+
+    var notebooks = await searchService.SearchByPageBookService(book ?? 0, page ?? 0);
     var notebooksDto = mapper.Map<IEnumerable<NotebookDto>>(notebooks);
     return Results.Ok(notebooksDto);
 })

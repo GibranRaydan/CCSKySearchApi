@@ -16,7 +16,10 @@ namespace CCSWebKySearch.Services
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<IEnumerable<MarriageLicenseModel>> SearchMarriageLicense(string surname, string searchType, int order = 0)
+        public async Task<IEnumerable<MarriageLicenseModel>> SearchMarriageLicense(
+            string surname, 
+            string searchType, 
+            int order = 0)
         {
             string sortDirection = _inputValidations(surname, searchType, order);
             using (IDbConnection dbConnection = new MySqlConnection(_connectionString))
@@ -27,12 +30,20 @@ namespace CCSWebKySearch.Services
                 if (searchType == "GROOM") 
                 {
                     storedProcedure = "VitalSearch_MarriageGroom";
-                    parameters.Add("sqlWhere", $" WHERE Groomsurname like '{surname}%'", DbType.String, ParameterDirection.Input);
+                    parameters.Add(
+                        "sqlWhere", $" WHERE Groomsurname like '{surname}%'",
+                        DbType.String, 
+                        ParameterDirection.Input
+                        );
                 }
                 if (searchType == "BRIDE")
                 {
                     storedProcedure = "VitalSearch_MarriageBride";
-                    parameters.Add("sqlWhere", $" WHERE bridesurname like '{surname}%'", DbType.String, ParameterDirection.Input);
+                    parameters.Add(
+                        "sqlWhere", $" WHERE bridesurname like '{surname}%'",
+                        DbType.String,
+                        ParameterDirection.Input
+                        );
                 }
                 parameters.Add("searchLocation", "MIXED", DbType.String, ParameterDirection.Input);
                 parameters.Add("SortDirection", sortDirection, DbType.String, ParameterDirection.Input);
