@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using DotNetEnv;
 using CCSWebKySearch.Dtos;
 using CCSWebKySearch.Contracts;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,18 +18,23 @@ Env.Load();
 var connectionString = Env.GetString("CONNECTION_STRING");
 var documentsPath = Env.GetString("DOCUMENTS_PATH");
 var seqServerUrl = Env.GetString("SEQ_SERVER_URL");
+var rateLimitCheckLive = Env.GetString("RATE_LIMIT_CHECKLIVE");
+var rateLimitSearch = Env.GetString("RATE_LIMIT_SEARCH");
 
 // Set up configuration to override values with those from .env
 builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
 {
     { "ConnectionStrings:DefaultConnection", connectionString },
     { "DocumentsPath", documentsPath },
-    { "Serilog:WriteTo:2:Args:serverUrl", seqServerUrl }
+    { "Serilog:WriteTo:2:Args:serverUrl", seqServerUrl },
+    { "IpRateLimiting:GeneralRules:0:Limit", rateLimitCheckLive },
+    { "IpRateLimiting:GeneralRules:1:Limit", rateLimitSearch }
 });
-
 
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
+// API services
+builder.Services.AddScoped<ICheckLiveService, CheckLiveService>();
 builder.Services.AddScoped<INotebookService, NotebookService>();
 builder.Services.AddScoped<ILandSearchPageBookService, BookPageSearchService>();
 builder.Services.AddScoped<IKindSearchService, KindSearchService>();
@@ -47,7 +53,14 @@ builder.Services.AddCors(options =>
 
 });
 
-builder.Services.AddScoped<ICheckLiveService, CheckLiveService>();
+// Add IpRateLimiting services
+builder.Services.AddOptions();
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.Configure<IpRateLimitPolicies>(builder.Configuration.GetSection("IpRateLimitPolicies"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
 
 // Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -71,6 +84,10 @@ app.UseHttpsRedirection();
 // Use the global exception handling middleware
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
+// Enable IpRateLimiting middleware
+app.UseIpRateLimiting();
+
+
 // CheckLive endpoint
 app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 {
@@ -80,7 +97,7 @@ app.MapGet("/checklive", (ICheckLiveService checkLiveService) =>
 .WithOpenApi();
 
 // Notebooks endpoint
-app.MapGet("/notebooks", async (
+app.MapGet("/search/documents/daily", async (
     [FromServices] INotebookService notebookService,
     [FromServices] IMapper mapper,
     [FromQuery] int? count) =>
