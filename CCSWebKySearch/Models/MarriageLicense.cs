@@ -9,8 +9,8 @@
         public string? BrideGiven { get; set; }
         public string? Date { get; set; }
         public string? License { get; set; }
-        public int? Book  { get; set; }
-        public int? Page { get; set; }
+        public string? Book  { get; set; }
+        public string? Page { get; set; }
         public string? GroomRace { get; set; }
         public string? BrideRace { get; set; }
         public string? Official { get; set; }
