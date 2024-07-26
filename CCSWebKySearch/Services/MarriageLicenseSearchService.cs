@@ -17,8 +17,8 @@ namespace CCSWebKySearch.Services
         }
 
         public async Task<IEnumerable<MarriageLicenseModel>> SearchMarriageLicense(
-            string surname, 
-            string searchType, 
+            string surname,
+            string searchType,
             int order = 0)
         {
             string sortDirection = _inputValidations(surname, searchType, order);
@@ -27,29 +27,37 @@ namespace CCSWebKySearch.Services
                 string storedProcedure = "";
                 var parameters = new DynamicParameters();
 
-                if (searchType == "GROOM") 
+                if (searchType == "GROOM")
                 {
                     storedProcedure = "VitalSearch_MarriageGroom";
                     parameters.Add(
                         "sqlWhere", $" WHERE Groomsurname like '{surname}%'",
-                        DbType.String, 
+                        DbType.String,
                         ParameterDirection.Input
-                        );
+                    );
                 }
-                if (searchType == "BRIDE")
+                else if (searchType == "BRIDE")
                 {
                     storedProcedure = "VitalSearch_MarriageBride";
                     parameters.Add(
                         "sqlWhere", $" WHERE bridesurname like '{surname}%'",
                         DbType.String,
                         ParameterDirection.Input
-                        );
+                    );
                 }
+
                 parameters.Add("searchLocation", "MIXED", DbType.String, ParameterDirection.Input);
                 parameters.Add("SortDirection", sortDirection, DbType.String, ParameterDirection.Input);
                 parameters.Add("OnlyDistinctDocs", 0, DbType.Int16, ParameterDirection.Input);
 
-                return await dbConnection.QueryAsync<MarriageLicenseModel>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+                using (var multi = await dbConnection.QueryMultipleAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure))
+                {
+                    // Skip the first result set
+                    await multi.ReadAsync<MarriageLicenseModel>();
+                    // Read the second result set
+                    var secondResult = await multi.ReadAsync<MarriageLicenseModel>();
+                    return secondResult;
+                }
             }
         }
 
