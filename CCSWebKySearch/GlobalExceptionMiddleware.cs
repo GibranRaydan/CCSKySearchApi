@@ -48,6 +48,13 @@ public class GlobalExceptionMiddleware
                 message = "Invalid request data.";
                 _logger.Warning(exception, "Bad request: {Message}", exception.Message);
                 break;
+
+            case FileNotFoundException _:
+                status = HttpStatusCode.BadRequest;
+                message = "Invalid request data, not file found.";
+                _logger.Warning(exception, "Bad request: {Message}", exception.Message);
+                break;
+                
             default:
                 status = HttpStatusCode.InternalServerError;
                 message = "An unexpected error occurred.";
