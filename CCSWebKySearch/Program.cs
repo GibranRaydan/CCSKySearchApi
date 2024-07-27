@@ -26,7 +26,7 @@ builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
 {
     { "ConnectionStrings:DefaultConnection", connectionString },
     { "DocumentsPath", documentsPath },
-    { "Serilog:WriteTo:2:Args:serverUrl", seqServerUrl },
+    { "Serilog:WriteTo:2:Args:serverUrl", "http://localhost:5341" },
     { "IpRateLimiting:GeneralRules:0:Limit", rateLimitCheckLive },
     { "IpRateLimiting:GeneralRules:1:Limit", rateLimitSearch }
 });
