@@ -39,6 +39,8 @@ else
     var response = await client.GetSecretValueAsync(request);
     if (response.SecretString != null)
     {
+        Console.WriteLine("SecretString: ");
+        Console.Write(response.SecretString);
         var secretValues = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString);
         foreach (var secret in secretValues)
         {
