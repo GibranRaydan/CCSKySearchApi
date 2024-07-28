@@ -11,13 +11,44 @@ using AspNetCoreRateLimit;
 using Amazon.S3;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
+using Amazon.SecretsManager.Model;
+using Amazon.SecretsManager;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load the .env file
-Env.Load();
+// Local Development: Load the .env file
+if (builder.Environment.IsDevelopment())
+{
+    Env.Load();
+}
 
-// Retrieve values from .env
+// Production: Load secrets from AWS Secrets Manager
+else
+{
+    var secretName = "prod/api/search/gibran";
+    var region = "us-east-2";
+    var client = new AmazonSecretsManagerClient(Amazon.RegionEndpoint.GetBySystemName(region));
+
+    var request = new GetSecretValueRequest
+    {
+        SecretId = secretName,
+        VersionStage = "AWSCURRENT", // VersionStage defaults to AWSCURRENT if unspecified.
+    };
+
+    var response = await client.GetSecretValueAsync(request);
+    if (response.SecretString != null)
+    {
+        var secretValues = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString);
+        foreach (var secret in secretValues)
+        {
+            builder.Configuration[secret.Key] = secret.Value;
+        }
+    }
+}
+
+
+// Retrieve values from .env or secret manager
 var connectionString = Env.GetString("CONNECTION_STRING");
 var documentsPath = Env.GetString("DOCUMENTS_PATH");
 var seqServerUrl = Env.GetString("SEQ_SERVER_URL");
