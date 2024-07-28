@@ -43,6 +43,8 @@ if (builder.Environment.IsDevelopment())
     awsRegion = Env.GetString("AWS_REGION");
     s3BucketName = Env.GetString("S3_BUCKET_NAME");
 
+    builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+
 }
 
 // Production: Load secrets from AWS Secrets Manager
@@ -102,7 +104,7 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
     Region = Amazon.RegionEndpoint.GetBySystemName(awsRegion)
 });
 
-// builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+
 
 // API services
 builder.Services.AddScoped<ICheckLiveService, CheckLiveService>();
@@ -158,7 +160,7 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 // Use the global exception handling middleware
-// app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Enable IpRateLimiting middleware
 app.UseIpRateLimiting();
