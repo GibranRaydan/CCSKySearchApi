@@ -17,10 +17,32 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+    var connectionString = "";
+    var documentsPath = "";
+    var seqServerUrl = "";
+    var rateLimitCheckLive = "";
+    var rateLimitSearch = "";
+    var awsAccessKeyId = "";
+    var awsSecretAccessKey = "";
+    var awsRegion = "";
+    var s3BucketName = "";
+
 // Local Development: Load the .env file
 if (builder.Environment.IsDevelopment())
 {
     Env.Load();
+    // Retrieve values from .env
+    connectionString = Env.GetString("CONNECTION_STRING");
+    documentsPath = Env.GetString("DOCUMENTS_PATH");
+    seqServerUrl = Env.GetString("SEQ_SERVER_URL");
+    rateLimitCheckLive = Env.GetString("RATE_LIMIT_CHECKLIVE");
+    rateLimitSearch = Env.GetString("RATE_LIMIT_SEARCH");
+    awsAccessKeyId = Env.GetString("AWS_ACCESS_KEY_ID");
+    awsSecretAccessKey = Env.GetString("AWS_SECRET_ACCESS_KEY");
+    awsRegion = Env.GetString("AWS_REGION");
+    s3BucketName = Env.GetString("S3_BUCKET_NAME");
+
 }
 
 // Production: Load secrets from AWS Secrets Manager
@@ -47,19 +69,20 @@ else
             builder.Configuration[secret.Key] = secret.Value;
         }
     }
+
+    // Retrieve values from .env
+    connectionString = builder.Configuration["CONNECTION_STRING"];
+    documentsPath = builder.Configuration["DOCUMENTS_PATH"];
+    seqServerUrl = builder.Configuration["SEQ_SERVER_URL"];
+    rateLimitCheckLive = builder.Configuration["RATE_LIMIT_CHECKLIVE"];
+    rateLimitSearch = builder.Configuration["RATE_LIMIT_SEARCH"];
+    awsAccessKeyId = builder.Configuration["AWS_ACCESS_KEY_ID"];
+    awsSecretAccessKey = builder.Configuration["AWS_SECRET_ACCESS_KEY"];
+    awsRegion = builder.Configuration["AWS_REGION"];
+    s3BucketName = builder.Configuration["S3_BUCKET_NAME"];
 }
 
 
-// Retrieve values from .env or secret manager
-var connectionString = Env.GetString("CONNECTION_STRING");
-var documentsPath = Env.GetString("DOCUMENTS_PATH");
-var seqServerUrl = Env.GetString("SEQ_SERVER_URL");
-var rateLimitCheckLive = Env.GetString("RATE_LIMIT_CHECKLIVE");
-var rateLimitSearch = Env.GetString("RATE_LIMIT_SEARCH");
-var awsAccessKeyId = Env.GetString("AWS_ACCESS_KEY_ID");
-var awsSecretAccessKey = Env.GetString("AWS_SECRET_ACCESS_KEY");
-var awsRegion = Env.GetString("AWS_REGION");
-var s3BucketName = Env.GetString("S3_BUCKET_NAME");
 
 // Set up configuration to override values with those from .env
 builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
@@ -72,7 +95,6 @@ builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
     { "AWS:BucketName", s3BucketName }
 
 });
-
 
 builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
 {
