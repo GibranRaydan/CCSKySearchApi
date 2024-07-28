@@ -102,7 +102,7 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
     Region = Amazon.RegionEndpoint.GetBySystemName(awsRegion)
 });
 
-builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+// builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
 // API services
 builder.Services.AddScoped<ICheckLiveService, CheckLiveService>();
