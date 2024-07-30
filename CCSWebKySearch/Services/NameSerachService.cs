@@ -5,6 +5,7 @@ using Dapper;
 using MySqlConnector;
 using System.Data;
 using System.Security.AccessControl;
+using System.Text.RegularExpressions;
 
 namespace CCSWebKySearch.Services
 {
@@ -20,9 +21,9 @@ namespace CCSWebKySearch.Services
 
         public async Task<IEnumerable<NotebookModel>> SearchByNameServiceAsync(string surname, string nameType = "BOTH", string given = null)
         {
-            surname = surname.Trim();
             nameType = nameType.Trim();
-            given = given.Trim();
+            surname = Regex.Replace(surname, @"[^a-zA-ZáéíóúÁÉÍÓÚ']", "");
+            given = Regex.Replace(given, @"[^a-zA-ZáéíóúÁÉÍÓÚ']", "");
 
             if (string.IsNullOrWhiteSpace(surname))
             {
