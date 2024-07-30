@@ -23,7 +23,7 @@ namespace CCSWebKySearch.Services
             int order = 0)
         {
 
-            surname =  Regex.Replace(surname, @"[^a-zA-Z0-9áéíóúÁÉÍÓÚ]", "");
+            surname = Regex.Replace(surname, @"[^a-zA-ZáéíóúÁÉÍÓÚ']", "");
             if (string.IsNullOrWhiteSpace(surname))
             {
                 throw new InvalidInputException("Error: surname cannot be empty");

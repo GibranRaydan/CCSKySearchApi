@@ -22,9 +22,8 @@ namespace CCSWebKySearch.Services
         public async Task<IEnumerable<NotebookModel>> SearchByNameServiceAsync(string surname, string nameType = "BOTH", string given = null)
         {
             nameType = nameType.Trim();
-            surname = Regex.Replace(surname, @"[^a-zA-Z0-9áéíóúÁÉÍÓÚ]", "");
-            given = Regex.Replace(given, @"[^a-zA-Z0-9áéíóúÁÉÍÓÚ]", "");
-
+            surname = Regex.Replace(surname, @"[^a-zA-ZáéíóúÁÉÍÓÚ']", "");
+            given = Regex.Replace(given, @"[^a-zA-ZáéíóúÁÉÍÓÚ']", "");
 
             if (string.IsNullOrWhiteSpace(surname))
             {
