@@ -160,7 +160,7 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 // Use the global exception handling middleware
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Enable IpRateLimiting middleware
 app.UseIpRateLimiting();
