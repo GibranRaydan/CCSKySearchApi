@@ -4,6 +4,7 @@ using MySqlConnector;
 using System.Data;
 using CCSWebKySearch.Exceptions;
 using CCSWebKySearch.Contracts;
+using System.Text.RegularExpressions;
 
 namespace CCSWebKySearch.Services
 {
@@ -21,6 +22,13 @@ namespace CCSWebKySearch.Services
             string searchType,
             int order = 0)
         {
+
+            surname = Regex.Replace(surname, @"[^a-zA-ZáéíóúÁÉÍÓÚ']", "");
+            if (string.IsNullOrWhiteSpace(surname))
+            {
+                throw new InvalidInputException("Error: surname cannot be empty");
+            }
+
             string sortDirection = _inputValidations(surname, searchType, order);
             using (IDbConnection dbConnection = new MySqlConnection(_connectionString))
             {

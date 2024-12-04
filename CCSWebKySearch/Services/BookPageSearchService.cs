@@ -22,7 +22,7 @@ namespace CCSWebKySearch.Services
 
         public async Task<IEnumerable<NotebookModel>> SearchByPageBookService(long book = 0, long page = 0)
         {
-            if (book <= 0 || page <= 0)
+            if (book < 0 || page < 0)
             {
                 throw new InvalidInputException("invalid input, just positive numbers");
             }
